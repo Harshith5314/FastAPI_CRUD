@@ -35,12 +35,12 @@ def add_product(id:int, product:Product):
         if products[i].id==id:
             products[i]=product
             return "Product Updated Successfully"
-        return "No such product exists!"
+    return "No such product exists!"
 
 @app.delete("/product") # Removing the product from the db(products list)
-def delete_product(id:int,product:Product):
+def delete_product(id:int):
     for i in range(len(products)):
         if products[i].id==id:
             products.remove(products[i])
             return f"id: {id} product is deleted"
-        return f"id: {id} is not present to delete"
+    return f"id: {id} is not present to delete"
