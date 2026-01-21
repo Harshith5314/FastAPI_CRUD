@@ -41,6 +41,6 @@ def add_product(id:int, product:Product):
 def delete_product(id:int):
     for i in range(len(products)):
         if products[i].id==id:
-            products.remove(products[i])
+            del products[i]
             return f"id: {id} product is deleted"
     return f"id: {id} is not present to delete"
