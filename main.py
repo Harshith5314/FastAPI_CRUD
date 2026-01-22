@@ -47,6 +47,7 @@ def get_products(db: Session = Depends(get_db)):
     return db_product
 
 
+
 @app.get("/get_products/{id}/") # Get product by ID
 def get_products_by_id(id: int, db: Session = Depends(get_db)):
     db_product = db.query(database_models.Product).filter(database_models.Product.id == id).first() # Fetch product with given ID
@@ -54,18 +55,31 @@ def get_products_by_id(id: int, db: Session = Depends(get_db)):
         return db_product          # Return product if found
     return "Product Not Found"  # If product does not exist
 
+
+
 @app.post("/product") #adding the product into database(products list)
 def add_product(product:Product, db:Session=Depends(get_db)):
     db.add(database_models.Product(**product.model_dump()))
     db.commit() # Save changes to database
+    return product
+
+
 
 @app.put("/product") # Updating the product in the database(products list)
-def add_product(id:int, product:Product):
-    for i in range(len(products)):
-        if products[i].id==id:
-            products[i]=product
-            return "Product Updated Successfully"
-    return "No such product exists!"
+def add_product(id:int, product:Product, db:Session=Depends(get_db)):
+    db_product=db.query(database_models.Product).filter(database_models.Product.id==id).first()
+    if db_product:
+        db_product.name=product.name
+        db_product.description=product.description
+        db_product.price=product.price
+        db_product.quantity=product.quantity
+        db.commit()
+        return product
+    else:
+        return f"No Product found with id: {id}"
+
+
+
 
 @app.delete("/product") # Removing the product from the db(products list)
 def delete_product(id:int):
