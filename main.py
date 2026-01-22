@@ -7,11 +7,11 @@ from sqlalchemy.orm import Session
 
 app=FastAPI()
 app.add_middleware(
-    CORSMiddleware, # Its for Middleware security helps to make connection b/w frontend port and backend port 
-    allow_origins=["http://localhost:3000"], # allowing frontend port to work with db post
-    allow_methods=["*"]    # Allowing all http methods to access
-                    )
-
+    CORSMiddleware,
+    allow_origins=["*"], # Change this to ["*"] to allow all connections initially
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 database_models.Base.metadata.create_all(bind=engine)
 
 @app.get("/") #home page
