@@ -19,40 +19,45 @@ products=[
     Product(id=4,name="Laptop",description="An Windows device",price=235000,quantity=32),
 ]
 
+# ---------- DATABASE SESSION ----------
 def get_db():
-    db=session()
+    db = session()              # Create database session
     try:
-        yield db
+        yield db                # Provide session to API routes
     finally:
-        db.close()
+        db.close()              # Close session after request
 
 
+# ---------- INITIAL DATABASE DATA ----------
 def init_db():
-    db=session()
-
-    count=db.query(database_models.Product).count
-    if count==0:
+    db = session()              # Create database session
+    count = db.query(database_models.Product).count() # Count number of products in table
+    if count == 0:              # If table is empty
         for product in products:
-            db.add(database_models.Product(**product.model_dump()))
-        db.commit()
+            db.add(database_models.Product(**product.model_dump()))  # Insert product data
+        db.commit()             # Save changes to database
 
-init_db()
+init_db()                       # Run DB initialization at startup
 
-@app.get("/get_products") #get_products page
-def get_products(db:Session=Depends(get_db)):
-    db_products = db.query(database_models.Product).all()
-    return db_products
 
-@app.get("/get_products/{id}/") # getting data by using id
-def get_products_by_id(id:int,db:Session=Depends(get_db)):
-    db_product=db.query(database_models.Product).filter(database_models.Product.id==id).first()
+# ---------- API ROUTES ----------
+@app.get("/get_products")       # Get all products
+def get_products(db: Session = Depends(get_db)):
+    db_product = db.query(database_models.Product).all() # Fetch all products
+    return db_product
+
+
+@app.get("/get_products/{id}/") # Get product by ID
+def get_products_by_id(id: int, db: Session = Depends(get_db)):
+    db_product = db.query(database_models.Product).filter(database_models.Product.id == id).first() # Fetch product with given ID
     if db_product:
-        return db_product
-    return "Product Not Found"
+        return db_product          # Return product if found
+    return "Product Not Found"  # If product does not exist
 
 @app.post("/product") #adding the product into database(products list)
-def add_product(product:Product):
-    products.append(product)
+def add_product(product:Product, db:Session=Depends(get_db)):
+    db.add(database_models.Product(**product.model_dump()))
+    db.commit() # Save changes to database
 
 @app.put("/product") # Updating the product in the database(products list)
 def add_product(id:int, product:Product):
