@@ -16,7 +16,10 @@ database_models.Base.metadata.create_all(bind=engine)
 
 @app.get("/") #home page
 def greet():
-    return "Hello World!"
+    return {
+        "message": "Hello Everyone, Welcome to My FastAPI Project!",
+        "instructions": "Go to /docs to see the Swagger UI and test the API."
+    }
 
 products=[
     Product(id=1,name="Iphone",description="An IOS device",price=150000,quantity=3),
