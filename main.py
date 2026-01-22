@@ -1,10 +1,16 @@
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from models import Product
 from database import session,engine
 import database_models
 from sqlalchemy.orm import Session
 
 app=FastAPI()
+app.add_middleware(
+    CORSMiddleware, # Its for Middleware security helps to make connection b/w frontend port and backend port 
+    allow_origins=["http://localhost:3000"], # allowing frontend port to work with db post
+    allow_methods=["*"]    # Allowing all http methods to access
+                    )
 
 database_models.Base.metadata.create_all(bind=engine)
 
@@ -41,14 +47,14 @@ init_db()                       # Run DB initialization at startup
 
 
 # ---------- API ROUTES ----------
-@app.get("/get_products")       # Get all products
+@app.get("/products")       # Get all products
 def get_products(db: Session = Depends(get_db)):
     db_product = db.query(database_models.Product).all() # Fetch all products
     return db_product
 
 
 
-@app.get("/get_products/{id}/") # Get product by ID
+@app.get("/products/{id}/") # Get product by ID
 def get_products_by_id(id: int, db: Session = Depends(get_db)):
     db_product = db.query(database_models.Product).filter(database_models.Product.id == id).first() # Fetch product with given ID
     if db_product:
@@ -57,7 +63,7 @@ def get_products_by_id(id: int, db: Session = Depends(get_db)):
 
 
 
-@app.post("/product") #adding the product into database(products list)
+@app.post("/products") #adding the product into database(products list)
 def add_product(product:Product, db:Session=Depends(get_db)):
     db.add(database_models.Product(**product.model_dump()))
     db.commit() # Save changes to database
@@ -65,7 +71,7 @@ def add_product(product:Product, db:Session=Depends(get_db)):
 
 
 
-@app.put("/product") # Updating the product in the database(products list)
+@app.put("/products") # Updating the product in the database(products list)
 def add_product(id:int, product:Product, db:Session=Depends(get_db)):
     db_product=db.query(database_models.Product).filter(database_models.Product.id==id).first()
     if db_product:
@@ -80,7 +86,7 @@ def add_product(id:int, product:Product, db:Session=Depends(get_db)):
 
 
 
-@app.delete("/product") # Removing the product from the db(products list)
+@app.delete("/products") # Removing the product from the db(products list)
 def delete_product(id:int, db:Session=Depends(get_db)):
     db_product=db.query(database_models.Product).filter(database_models.Product.id==id).first()
     if db_product:
